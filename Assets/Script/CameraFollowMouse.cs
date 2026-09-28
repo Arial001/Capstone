@@ -38,6 +38,5 @@ public class CameraFollowMouse : MonoBehaviour
             smoothSpeed * Time.deltaTime
         );
 
-        Debug.Log("Camera X: " + transform.position.x);
     }
 }

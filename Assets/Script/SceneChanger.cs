@@ -1,15 +1,24 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
-public class SceneChanger : MonoBehaviour
+public class SceneChanger : MonoBehaviour, IPointerEnterHandler
 {
-    public void GoToHall1()
+    public string sceneName;
+    public bool changeOnHover = false;
+
+    public void ChangeScene()
     {
-        SceneManager.LoadScene("Retriever");
+        Debug.Log("Changing scene to: " + sceneName);
+        SceneManager.LoadScene(sceneName);
     }
 
-    public void GoToHall2()
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        SceneManager.LoadScene("MainControl");
+        if (changeOnHover)
+        {
+            Debug.Log("Mouse hovered over: " + gameObject.name);
+            ChangeScene();
+        }
     }
 }

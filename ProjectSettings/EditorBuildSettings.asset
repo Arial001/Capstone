@@ -8,5 +8,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainControl.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Retriever.unity
+    guid: d5a8bf50486cb3547b9d0629f9f87f84
+  - enabled: 1
+    path: Assets/Scenes/Hall_1.unity
+    guid: 6923ff54523735d4ca4e9036f1549d6a
+  - enabled: 1
+    path: Assets/Scenes/Hall_2.unity
+    guid: 90c6b0e90678ab444a4d4284974eabb4
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
