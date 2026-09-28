@@ -148,7 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b4be464fdca704bb439ae0658205d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Retriever
+  sceneName: MainControl
+  changeOnHover: 0
 --- !u!4 &122352673
 Transform:
   m_ObjectHideFlags: 0
@@ -411,7 +412,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b4be464fdca704bb439ae0658205d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Retriever
+  sceneName: MainControl
+  changeOnHover: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
