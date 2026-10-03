@@ -8,11 +8,11 @@ public class DPadButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        PlayerMover.Instance.SetDirection(direction, true);
+        PlayerMover.Instance.StartHolding(direction);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        PlayerMover.Instance.SetDirection(direction, false);
+        PlayerMover.Instance.StopHolding(direction);
     }
 }
