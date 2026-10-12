@@ -5,11 +5,16 @@ public class PlayerMover : MonoBehaviour
 {
     public static PlayerMover Instance;
 
-    public float tileSize = 1f;
-    public float initialDelay = 0.3f;    // jeda sebelum mulai "lari" otomatis
-    public float repeatInterval = 0.15f; // jeda antar loncat grid selama tombol ditahan
+    public float tileSize = 0.0935f;
+    public float initialDelay = 0.3f;
+    public float repeatInterval = 0.15f;
     public LayerMask wallLayer;
-    public bool hideSprite = true;       // centang/uncentang di Inspector buat show/hide ship
+    public bool hideSprite = true;
+
+    public GameObject wallIndicatorUp;
+    public GameObject wallIndicatorDown;
+    public GameObject wallIndicatorLeft;
+    public GameObject wallIndicatorRight;
 
     private Vector2Int gridPos;
     private DPadButton.Direction? heldDirection = null;
@@ -23,7 +28,6 @@ public class PlayerMover : MonoBehaviour
             Mathf.RoundToInt(transform.position.y / tileSize)
         );
 
-        // sembunyikan visual ship dari map (kalau hideSprite dicentang), posisinya tetap di-track di belakang layar
         if (hideSprite)
         {
             var sr = GetComponent<SpriteRenderer>();
@@ -35,7 +39,7 @@ public class PlayerMover : MonoBehaviour
 
     void Start()
     {
-        if (RadarUI.Instance != null) RadarUI.Instance.UpdateRadar(gridPos, this);
+        RefreshAll();
     }
 
     public void StartHolding(DPadButton.Direction dir)
@@ -56,7 +60,7 @@ public class PlayerMover : MonoBehaviour
 
     IEnumerator HoldMoveLoop(DPadButton.Direction dir)
     {
-        TryMove(dir); // gerak sekali begitu tombol ditekan
+        TryMove(dir);
         yield return new WaitForSeconds(initialDelay);
 
         while (heldDirection == dir)
@@ -79,13 +83,28 @@ public class PlayerMover : MonoBehaviour
 
         Vector3 targetWorldPos = GridToWorld(target);
 
-        if (IsBlocked(targetWorldPos)) return; // kena tembok, berhenti di sini, nggak lanjut ke arah itu
+        if (IsBlocked(targetWorldPos)) return;
 
         gridPos = target;
         transform.position = targetWorldPos;
 
+        RefreshAll();
+    }
+
+    void RefreshAll()
+    {
+        if (GameManager.Instance != null) GameManager.Instance.UpdatePlayerPosition(gridPos);
         if (RadarUI.Instance != null) RadarUI.Instance.UpdateRadar(gridPos, this);
-        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.CheckObjective(gridPos);
+
+        bool up = IsWallInDirection(DPadButton.Direction.Up);
+        bool down = IsWallInDirection(DPadButton.Direction.Down);
+        bool left = IsWallInDirection(DPadButton.Direction.Left);
+        bool right = IsWallInDirection(DPadButton.Direction.Right);
+
+        if (wallIndicatorUp != null) wallIndicatorUp.SetActive(up);
+        if (wallIndicatorDown != null) wallIndicatorDown.SetActive(down);
+        if (wallIndicatorLeft != null) wallIndicatorLeft.SetActive(left);
+        if (wallIndicatorRight != null) wallIndicatorRight.SetActive(right);
     }
 
     Vector3 GridToWorld(Vector2Int g) => new Vector3(g.x * tileSize, g.y * tileSize, transform.position.z);
