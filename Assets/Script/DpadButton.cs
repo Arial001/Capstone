@@ -1,18 +1,24 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class DPadButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class DPadButton : MonoBehaviour
 {
     public enum Direction { Up, Down, Left, Right }
     public Direction direction;
 
-    public void OnPointerDown(PointerEventData eventData)
+    void OnMouseDown()
     {
+        Debug.Log("Tombol ditekan: " + direction);
+        if (PlayerMover.Instance == null)
+        {
+            Debug.LogError("PlayerMover.Instance kosong! Ship nonaktif atau script PlayerMover belum terpasang.");
+            return;
+        }
         PlayerMover.Instance.StartHolding(direction);
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    void OnMouseUp()
     {
-        PlayerMover.Instance.StopHolding(direction);
+        if (PlayerMover.Instance != null)
+            PlayerMover.Instance.StopHolding(direction);
     }
 }

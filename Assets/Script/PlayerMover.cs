@@ -83,7 +83,12 @@ public class PlayerMover : MonoBehaviour
 
         Vector3 targetWorldPos = GridToWorld(target);
 
-        if (IsBlocked(targetWorldPos)) return;
+        Collider2D blocker = Physics2D.OverlapBox(targetWorldPos, Vector2.one * (tileSize * 0.9f), 0f, wallLayer);
+        if (blocker != null)
+        {
+            Debug.Log("Gerak " + dir + " DIBLOK oleh: " + blocker.name, blocker.gameObject);
+            return;
+        }
 
         gridPos = target;
         transform.position = targetWorldPos;
