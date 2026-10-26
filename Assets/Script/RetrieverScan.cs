@@ -4,9 +4,25 @@ using TMPro;
 
 public class RetrieverScan : MonoBehaviour
 {
-    public float scanDuration = 1.5f;
+    public float scanDuration = 3f;
     public TMP_Text resultText;
+    public string collectedMessage = "Objective collected";
+    public string uncollectedMessage = "Objective uncollected";
+    public bool hideSquare = false; // centang kalau kotak putih mau disembunyikan
+
     private bool isScanning = false;
+
+    void Start()
+    {
+        if (resultText != null) resultText.text = "";
+
+        if (hideSquare)
+        {
+            // Hanya sprite yang disembunyikan, klik tetap jalan lewat collider
+            var sr = GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = false;
+        }
+    }
 
     void OnMouseDown()
     {
@@ -17,24 +33,25 @@ public class RetrieverScan : MonoBehaviour
     IEnumerator ScanRoutine()
     {
         isScanning = true;
-        if (resultText != null) resultText.text = "Scanning...";
+        if (resultText != null) resultText.text = "";
 
         yield return new WaitForSeconds(scanDuration);
 
-        var result = GameManager.Instance.TryClaimObjective(out var claimed);
+        bool collected = false;
 
-        switch (result)
+        if (GameManager.Instance != null)
         {
-            case GameManager.ClaimResult.Success:
-                if (resultText != null) resultText.text = $"Objective '{claimed.id}' berhasil di-claim!";
-                break;
-            case GameManager.ClaimResult.AlreadyClaimed:
-                if (resultText != null) resultText.text = "Objective ini sudah pernah di-claim.";
-                break;
-            case GameManager.ClaimResult.NoMatch:
-                if (resultText != null) resultText.text = "Gagal — posisi tidak sesuai objective.";
-                break;
+            var result = GameManager.Instance.TryClaimObjective(out int index);
+            Debug.Log($"Scan: {result}, objective index {index}");
+            collected = (result != GameManager.ClaimResult.NoMatch);
         }
+        else
+        {
+            Debug.LogWarning("GameManager tidak ada. Jalankan game dari scene MainControl, baru pindah scene.");
+        }
+
+        if (resultText != null)
+            resultText.text = collected ? collectedMessage : uncollectedMessage;
 
         isScanning = false;
     }

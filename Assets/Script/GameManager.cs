@@ -8,13 +8,17 @@ public class GameManager : MonoBehaviour
     [System.Serializable]
     public class ObjectiveInfo
     {
-        public string id;
-        public Vector2Int gridPosition;
+        public Rect area;      // diisi otomatis dari kotak kuning di MainControl
         public bool isClaimed;
     }
 
     public List<ObjectiveInfo> objectives = new List<ObjectiveInfo>();
+
     public Vector2Int lastPlayerGridPos;
+    public Vector2 lastPlayerWorldPos;
+    public bool hasSavedPosition = false;
+
+    public enum ClaimResult { Success, AlreadyClaimed, NoMatch }
 
     void Awake()
     {
@@ -27,34 +31,66 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    // Dipanggil PlayerMover versi kamu (1 argumen).
+    // Posisi dunia diambil langsung dari PlayerMover.
     public void UpdatePlayerPosition(Vector2Int gridPos)
     {
-        lastPlayerGridPos = gridPos;
+        Vector2 worldPos = lastPlayerWorldPos;
+        if (PlayerMover.Instance != null)
+            worldPos = PlayerMover.Instance.transform.position;
+
+        UpdatePlayerPosition(gridPos, worldPos);
     }
 
-    public enum ClaimResult { Success, AlreadyClaimed, NoMatch }
-
-    public ClaimResult TryClaimObjective(out ObjectiveInfo claimedObjective)
+    public void UpdatePlayerPosition(Vector2Int gridPos, Vector2 worldPos)
     {
-        claimedObjective = null;
-        foreach (var obj in objectives)
-        {
-            if (obj.gridPosition == lastPlayerGridPos)
-            {
-                if (obj.isClaimed)
-                    return ClaimResult.AlreadyClaimed;
+        lastPlayerGridPos = gridPos;
+        lastPlayerWorldPos = worldPos;
+        hasSavedPosition = true;
+    }
 
-                obj.isClaimed = true;
-                claimedObjective = obj;
+    // Dipanggil MainControl tiap scene dimuat. Status claimed dipertahankan
+    // selama jumlah objective sama.
+    public void RegisterObjectiveAreas(Rect[] areas)
+    {
+        if (objectives.Count != areas.Length)
+        {
+            objectives = new List<ObjectiveInfo>();
+            for (int i = 0; i < areas.Length; i++)
+                objectives.Add(new ObjectiveInfo());
+        }
+
+        for (int i = 0; i < areas.Length; i++)
+            objectives[i].area = areas[i];
+    }
+
+    public ClaimResult TryClaimObjective(out int index)
+    {
+        index = -1;
+        for (int i = 0; i < objectives.Count; i++)
+        {
+            if (objectives[i].area.Contains(lastPlayerWorldPos))
+            {
+                index = i;
+                if (objectives[i].isClaimed) return ClaimResult.AlreadyClaimed;
+
+                objectives[i].isClaimed = true;
                 return ClaimResult.Success;
             }
         }
         return ClaimResult.NoMatch;
     }
 
-    public bool IsClaimed(string id)
+    public bool IsClaimed(int index)
     {
-        var found = objectives.Find(o => o.id == id);
-        return found != null && found.isClaimed;
+        return index >= 0 && index < objectives.Count && objectives[index].isClaimed;
+    }
+
+    public int ClaimedCount()
+    {
+        int n = 0;
+        foreach (var o in objectives)
+            if (o.isClaimed) n++;
+        return n;
     }
 }
