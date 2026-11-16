@@ -97,6 +97,8 @@ public class GameManager : MonoBehaviour
     // selama jumlah objective sama.
     public void RegisterObjectiveAreas(Rect[] areas)
     {
+        if (areas == null || areas.Length == 0) return;
+
         if (objectives.Count != areas.Length)
         {
             objectives = new List<ObjectiveInfo>();
