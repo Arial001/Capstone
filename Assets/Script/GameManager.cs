@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
@@ -12,11 +13,21 @@ public class GameManager : MonoBehaviour
         public bool isClaimed;
     }
 
+    [System.Serializable]
+    public struct SavedPlayerPosition
+    {
+        public Vector2Int gridPos;
+        public Vector2 worldPos;
+    }
+
     public List<ObjectiveInfo> objectives = new List<ObjectiveInfo>();
 
     public Vector2Int lastPlayerGridPos;
     public Vector2 lastPlayerWorldPos;
     public bool hasSavedPosition = false;
+
+    // Menyimpan koordinat terakhir untuk masing-masing scene
+    private readonly Dictionary<string, SavedPlayerPosition> _scenePositions = new Dictionary<string, SavedPlayerPosition>();
 
     public enum ClaimResult { Success, AlreadyClaimed, NoMatch }
 
@@ -47,6 +58,39 @@ public class GameManager : MonoBehaviour
         lastPlayerGridPos = gridPos;
         lastPlayerWorldPos = worldPos;
         hasSavedPosition = true;
+
+        string activeScene = SceneManager.GetActiveScene().name;
+        _scenePositions[activeScene] = new SavedPlayerPosition
+        {
+            gridPos = gridPos,
+            worldPos = worldPos
+        };
+    }
+
+    // Dipanggil saat pindah scene agar posisi terakhir selalu tersimpan
+    public void SaveCurrentPlayerPosition()
+    {
+        if (PlayerMover.Instance == null) return;
+
+        Vector2Int currentGrid = PlayerMover.Instance.GetGridPos();
+        Vector2 currentWorld = PlayerMover.Instance.transform.position;
+        UpdatePlayerPosition(currentGrid, currentWorld);
+    }
+
+    // Dipanggil PlayerMover saat scene baru dimuat untuk memulihkan posisi
+    public bool TryGetSavedPositionForCurrentScene(out SavedPlayerPosition savedPos)
+    {
+        string activeScene = SceneManager.GetActiveScene().name;
+        if (_scenePositions.TryGetValue(activeScene, out savedPos))
+        {
+            lastPlayerGridPos = savedPos.gridPos;
+            lastPlayerWorldPos = savedPos.worldPos;
+            hasSavedPosition = true;
+            return true;
+        }
+
+        hasSavedPosition = false;
+        return false;
     }
 
     // Dipanggil MainControl tiap scene dimuat. Status claimed dipertahankan

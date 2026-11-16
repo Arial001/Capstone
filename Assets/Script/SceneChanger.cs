@@ -1,3 +1,4 @@
+// SceneChanger.cs
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
@@ -9,6 +10,11 @@ public class SceneChanger : MonoBehaviour, IPointerEnterHandler
 
     public void ChangeScene()
     {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SaveCurrentPlayerPosition();
+        }
+
         Debug.Log("Changing scene to: " + sceneName);
         SceneManager.LoadScene(sceneName);
     }

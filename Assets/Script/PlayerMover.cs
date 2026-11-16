@@ -23,10 +23,6 @@ public class PlayerMover : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        gridPos = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / tileSize),
-            Mathf.RoundToInt(transform.position.y / tileSize)
-        );
 
         if (hideSprite)
         {
@@ -39,7 +35,33 @@ public class PlayerMover : MonoBehaviour
 
     void Start()
     {
+        // Pulihkan koordinat jika scene ini sudah pernah dikunjungi
+        if (GameManager.Instance != null &&
+            GameManager.Instance.TryGetSavedPositionForCurrentScene(out var saved))
+        {
+            gridPos = saved.gridPos;
+            transform.position = new Vector3(saved.worldPos.x, saved.worldPos.y, transform.position.z);
+        }
+        else
+        {
+            gridPos = new Vector2Int(
+                Mathf.RoundToInt(transform.position.x / tileSize),
+                Mathf.RoundToInt(transform.position.y / tileSize)
+            );
+            transform.position = GridToWorld(gridPos);
+        }
+
         RefreshAll();
+    }
+
+    void OnDisable()
+    {
+        heldDirection = null;
+        if (moveRoutine != null)
+        {
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
+        }
     }
 
     public void StartHolding(DPadButton.Direction dir)

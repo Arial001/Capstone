@@ -1,3 +1,4 @@
+// DPadButton.cs
 using UnityEngine;
 
 public class DPadButton : MonoBehaviour
@@ -17,6 +18,12 @@ public class DPadButton : MonoBehaviour
     }
 
     void OnMouseUp()
+    {
+        if (PlayerMover.Instance != null)
+            PlayerMover.Instance.StopHolding(direction);
+    }
+
+    void OnDisable()
     {
         if (PlayerMover.Instance != null)
             PlayerMover.Instance.StopHolding(direction);
